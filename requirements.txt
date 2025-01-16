@@ -1,3 +1,5 @@
-fastapi
-uvicorn
 llama-cpp-python
+discord
+time
+asyncio
+json
