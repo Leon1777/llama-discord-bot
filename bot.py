@@ -130,7 +130,7 @@ async def process_queue():
                 system_instruction, user_input
             )
 
-            final_content = f"**Q:** {user_input}\n**A:** {response}\n\nInference runtime: {runtime:.2f} seconds"
+            final_content = f"**Q:** {user_input}\n**A:** ```\n{response}\n```\n\nInference runtime: {runtime:.2f} seconds"
 
             if len(final_content) > MAX_DISCORD_MESSAGE_LENGTH:
                 chunks = split_message(final_content, MAX_DISCORD_MESSAGE_LENGTH)
