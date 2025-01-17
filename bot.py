@@ -24,6 +24,9 @@ bot = discord.Client(intents=intents, heartbeat_timeout=60)
 
 MAX_DISCORD_MESSAGE_LENGTH = 2000
 
+# process sequentially
+request_queue = asyncio.Queue()
+
 
 def split_message(content, max_length=2000):
     """Split a long message into chunks that fit within the Discord limit."""
@@ -107,24 +110,10 @@ async def generate_response_async(system_instruction: str, user_input: str) -> t
     return await asyncio.to_thread(generate_response, system_instruction, user_input)
 
 
-@bot.event
-async def on_ready():
-    print(f"We have logged in as {bot.user}")
-
-
-@bot.event
-async def on_message(message):
-    if message.author == bot.user:
-        return
-
-    if message.content.startswith("!ask"):
-        user_input = message.content[len("!ask ") :].strip()
-        if not user_input:
-            await message.reply(
-                "Please provide a question or input after the `!ask` command."
-            )
-            return
-
+async def process_queue():
+    """Process requests from the queue one at a time."""
+    while True:
+        message, user_input = await request_queue.get()
         placeholder = await message.reply("Let me think for a moment...")
         try:
             system_instruction = (
@@ -157,6 +146,31 @@ async def on_message(message):
             error_message = f"An error occurred: {e}"
             print(error_message)
             await placeholder.edit(content=error_message)
+
+        finally:
+            request_queue.task_done()
+
+
+@bot.event
+async def on_ready():
+    print(f"We have logged in as {bot.user}")
+    bot.loop.create_task(process_queue())
+
+
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        return
+
+    if message.content.startswith("!ask"):
+        user_input = message.content[len("!ask ") :].strip()
+        if not user_input:
+            await message.reply(
+                "Please provide a question or input after the `!ask` command."
+            )
+            return
+
+        await request_queue.put((message, user_input))
 
 
 bot.run(TOKEN)
