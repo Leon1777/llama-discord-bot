@@ -133,8 +133,13 @@ async def process_queue():
             final_content = f"**Q:** {user_input}\n**A:** ```\n{response}\n```\n\nInference runtime: {runtime:.2f} seconds"
 
             if len(final_content) > MAX_DISCORD_MESSAGE_LENGTH:
-                chunks = split_message(final_content, MAX_DISCORD_MESSAGE_LENGTH)
-                for chunk in chunks:
+                # each chunk with backticks
+                chunks = split_message(
+                    response, MAX_DISCORD_MESSAGE_LENGTH - 10
+                )  # space for backticks
+                formatted_chunks = [f"```{chunk}```" for chunk in chunks]
+
+                for chunk in formatted_chunks:
                     await message.channel.send(chunk)
                 await placeholder.edit(
                     content="Response was too long, sent in multiple messages."
