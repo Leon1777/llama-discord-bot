@@ -49,6 +49,7 @@ def split_message(content, max_length=2000):
     """Split a long message into chunks that fit within the Discord limit."""
     return [content[i : i + max_length] for i in range(0, len(content), max_length)]
 
+
 # load history from here and reconstruct array upon restart
 def save_chat_history(
     system_instruction, user_input, response, timestamp, file_path="chat_history.json"
