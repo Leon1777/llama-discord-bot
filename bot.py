@@ -6,15 +6,15 @@ from llama_cpp import Llama
 
 # Initialize the LLaMA model
 llm = Llama(
-    model_path="Llama-3.1-8B-Lexi-Uncensored_Q8_fixedrope.gguf",
-    n_gpu_layers=32,  # Use GPU for X layers (depends on model size)
+    model_path="Qwen2.5-14B_Uncencored-Q4_K_L.gguf",
+    n_gpu_layers=49,  # Use GPU for X layers (depends on model size)
     use_mlock=True,  # Pin memory to avoid swapping
     n_threads=14,  # CPU threads
-    n_ctx=512,
+    n_ctx=1024,
     verbose=True,
 )
 
-SAVE_CHAT_HISTORY = True
+SAVE_CHAT_HISTORY = False
 
 # Discord setup
 TOKEN = "X"
@@ -100,7 +100,7 @@ def generate_response() -> tuple:
 
         output = llm(
             prompt=prompt,
-            max_tokens=256,
+            max_tokens=1024,
             temperature=0.5,
             top_p=0.7,
             stop=["System:", "User:"],  # Stop token: ["\n"]
