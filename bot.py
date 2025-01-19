@@ -139,8 +139,13 @@ async def process_queue():
                 )  # space for backticks
                 formatted_chunks = [f"```{chunk}```" for chunk in chunks]
 
-                for chunk in formatted_chunks:
+                # send all chunks except last
+                for chunk in formatted_chunks[:-1]:
                     await message.channel.send(chunk)
+
+                # inference runtime to last chunk
+                last_chunk_with_runtime = f"{formatted_chunks[-1]}\n\nInference runtime: {runtime:.2f} seconds"
+                await message.channel.send(last_chunk_with_runtime)
                 await placeholder.edit(
                     content="Response was too long, sent in multiple messages."
                 )
