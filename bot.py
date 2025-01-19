@@ -51,31 +51,14 @@ def split_message(content, max_length=2000):
 
 
 # load history from here and reconstruct array upon restart
-def save_chat_history(
-    system_instruction, user_input, response, timestamp, file_path="chat_history.json"
-):
+def save_chat_history(file_path="chat_history.json"):
     """
     Save chat history in JSON format if SAVE_CHAT_HISTORY is enabled.
     """
     if not SAVE_CHAT_HISTORY:
         return False
 
-    data = {
-        "timestamp": timestamp,
-        "system_instruction": system_instruction,
-        "user_input": user_input,
-        "response": response,
-    }
-
     try:
-        try:
-            with open(file_path, "r", encoding="utf-8") as file:
-                chat_history = json.load(file)
-        except (FileNotFoundError, json.JSONDecodeError):
-            chat_history = []
-
-        chat_history.append(data)
-
         with open(file_path, "w", encoding="utf-8") as file:
             json.dump(chat_history, file, indent=2)
 
@@ -119,13 +102,8 @@ def generate_response() -> tuple:
         chat_history.append({"role": "assistant", "content": generated_text})
 
         # Save conversation to .json if enabled
-        timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-        save_status = save_chat_history(
-            SYSTEM_INSTRUCTION,
-            chat_history[-2]["content"],
-            generated_text,
-            timestamp,
-        )
+        save_status = save_chat_history()
+
         print(f"Conversation saved: {save_status}")
 
         return generated_text, runtime
